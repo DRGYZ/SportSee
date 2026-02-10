@@ -1,64 +1,58 @@
 # SportSee
 
-This repo contains all the source code to run the micro API for the sports analytics dashboard SportSee.
+SportSee is a profile dashboard project with:
+- a backend micro API (Express) on port `3000`
+- a frontend dashboard (React + Recharts) on port `5173`
 
-## 1. General information
+The frontend currently targets desktop layout only (`>= 1024x780`).
 
-To start this project, you are free to use Docker or not. In this documentation, we will see several methods to launch the project easily.
+## Prerequisites
 
-## 2. Project (**without Docker**)
+- Node.js (LTS recommended)
+- npm or yarn
 
-### 2.1 Prerequisites
+## Backend setup (repo root)
 
-- [NodeJS (**version 12.18**)](https://nodejs.org/en/) or higher (tested up to Node 20.0) 
-- [Yarn](https://yarnpkg.com/)
+From `SportSee/`:
 
-If you are working with several versions of NodeJS, we recommend you install [nvm](https://github.com/nvm-sh/nvm). This tool will allow you to easily manage your NodeJS versions.
+```bash
+npm install
+npm run dev
+```
 
-### 2.2 Launching the project
+Backend runs on: `http://localhost:3000`
 
-- Fork the repository
-- Clone it on your computer.
-- The `yarn` command will allow you to install the dependencies.
-- The `yarn dev` command will allow you to run the micro API.
+## Frontend setup (`frontend/`)
 
+From `SportSee/frontend`:
 
-## 3. Project (**with Docker**)
+```bash
+npm install
+npm run dev
+```
 
-### 2.1 Prerequisites
+Frontend runs on: `http://127.0.0.1:5173`
 
-- [Docker Desktop](https://www.docker.com/products/docker-desktop)
+## Frontend environment variables
 
-### 2.2 Starting the project
+Defined in `frontend/.env`:
 
-- The `docker image build --no-cache -t micro-api .` command will allow you to build your image.
-- The `docker container run --name micro-api -p 3000:3000 -dt micro-api yarn` command will allow you to create your Docker container and run your image on port 3000.
-- The `docker container stop micro-api` command will allow you to stop your micro-api.
-- The `docker container rm micro-api` command will allow you to delete your micro-api container.
+- `VITE_DATA_SOURCE=mock|api` (default: `mock`)
+- `VITE_API_BASE_URL=http://localhost:3000`
+- `VITE_DEBUG=true|false` (default: `false`)
 
-### 2.3 Vscode and container remotes
+If you set `VITE_DATA_SOURCE=api`, make sure backend is running on port `3000`.
 
-Finally, if you have VsCode, you can easily launch your project in a docker environment.
+## Test users
 
-You will need the [Remote Development extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.vscode-remote-extensionpack). Once you have this extension installed, just click on the `Reopen in Container` button.
+Only two mocked users are available:
+- `/user/12`
+- `/user/18`
 
-Once in the container, run the `yarn dev` command.
+In frontend routes:
+- `http://127.0.0.1:5173/user/12`
+- `http://127.0.0.1:5173/user/18`
 
-## 4. Endpoints
-
-### 4.1 Possible endpoints
-
-This project includes four endpoints that you will be able to use: 
-
-- `http://localhost:3000/user/${userId}` - retrieves information from a user. This first endpoint includes the user id, user information (first name, last name and age), the current day's score (todayScore) and key data (calorie, macronutrient, etc.).
-- `http://localhost:3000/user/${userId}/activity` - retrieves a user's activity day by day with kilograms and calories.
-- `http://localhost:3000/user/${userId}/average-sessions` - retrieves the average sessions of a user per day. The week starts on Monday.
-- `http://localhost:3000/user/${userId}/performance` - retrieves a user's performance (energy, endurance, etc.).
-
-
-**Warning, currently only two users have been mocked. They have userId 12 and 18 respectively.**
-
-### 4.2 Examples of queries
-
-- `http://localhost:3000/user/12/performance` - Retrieves the performance of the user with id 12
-- `http://localhost:3000/user/18` - Retrieves user 18's main information.
+In backend endpoints:
+- `http://localhost:3000/user/12`
+- `http://localhost:3000/user/18`
