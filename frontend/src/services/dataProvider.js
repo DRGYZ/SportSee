@@ -3,7 +3,6 @@ import {
   getUserAverageSessions as getUserAverageSessionsMock,
   getUserMainData as getUserMainDataMock,
   getUserPerformance as getUserPerformanceMock,
-  getUserScore as getUserScoreMock,
 } from "./mock/mockService";
 
 import {
@@ -66,16 +65,4 @@ export function getUserPerformance(userId) {
   }
 
   return getUserPerformanceApi(userId).then((payload) => adaptUserPerformance(payload?.data));
-}
-
-/**
- * Get normalized score value (0..1).
- * @param {string|number} userId
- */
-export function getUserScore(userId) {
-  if (!useApi) {
-    return getUserScoreMock(userId);
-  }
-
-  return getUserMainData(userId).then((user) => user.score);
 }

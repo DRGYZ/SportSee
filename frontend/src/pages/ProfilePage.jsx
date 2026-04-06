@@ -1,28 +1,28 @@
 import React from "react";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import Header from "../components/Header";
-import Sidebar from "../components/Sidebar";
 import DashboardSkeleton from "../components/DashboardSkeleton";
 import {
   getUserActivity,
   getUserAverageSessions,
   getUserMainData,
   getUserPerformance,
-  getUserScore,
 } from "../services/dataProvider";
 
 const isDebugEnabled = import.meta.env.VITE_DEBUG === "true";
 
+/**
+ * Load and render the SportSee dashboard for the current user route.
+ * Data is fetched through the provider layer so the page stays decoupled
+ * from API and mock implementation details.
+ */
 function ProfilePage() {
   const { id } = useParams();
   const [debugData, setDebugData] = useState({
     user: null,
-    mainData: null,
     activity: null,
     averageSessions: null,
     performance: null,
-    score: null,
   });
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
@@ -35,22 +35,19 @@ function ProfilePage() {
       setError("");
 
       try {
-        const [mainData, activity, averageSessions, performance, score] = await Promise.all([
+        const [user, activity, averageSessions, performance] = await Promise.all([
           getUserMainData(id),
           getUserActivity(id),
           getUserAverageSessions(id),
           getUserPerformance(id),
-          getUserScore(id),
         ]);
 
         if (!isCancelled) {
           setDebugData({
-            user: mainData,
-            mainData,
+            user,
             activity,
             averageSessions,
             performance,
-            score,
           });
         }
       } catch (loadError) {
@@ -72,33 +69,27 @@ function ProfilePage() {
   }, [id]);
 
   return (
-    <div className="app-shell">
-      <Header />
-      <div className="body-shell">
-        <Sidebar />
-        <main className="main-content">
-          {isLoading ? <p>Chargement...</p> : null}
-          {!isLoading && error ? <p className="debug-error">{error}</p> : null}
-          {!isLoading && !error ? (
-            <DashboardSkeleton
-              userId={id}
-              firstName={debugData.user?.firstName ?? "Utilisateur"}
-              activitySessions={debugData.activity?.sessions ?? []}
-              averageSessions={debugData.averageSessions?.sessions ?? []}
-              performanceCategories={debugData.performance?.categories ?? []}
-              score={debugData.user?.score ?? 0}
-              keyData={debugData.user?.keyData ?? {}}
-            />
-          ) : null}
-          {isDebugEnabled ? (
-            <details className="debug-panel">
-              <summary>Debug data preview</summary>
-              <pre className="debug-json">{JSON.stringify(debugData, null, 2)}</pre>
-            </details>
-          ) : null}
-        </main>
-      </div>
-    </div>
+    <>
+      {isLoading ? <p>Chargement...</p> : null}
+      {!isLoading && error ? <p className="debug-error">{error}</p> : null}
+      {!isLoading && !error ? (
+        <DashboardSkeleton
+          userId={id}
+          firstName={debugData.user?.firstName ?? "Utilisateur"}
+          activitySessions={debugData.activity?.sessions ?? []}
+          averageSessions={debugData.averageSessions?.sessions ?? []}
+          performanceCategories={debugData.performance?.categories ?? []}
+          score={debugData.user?.score ?? 0}
+          keyData={debugData.user?.keyData ?? {}}
+        />
+      ) : null}
+      {isDebugEnabled ? (
+        <details className="debug-panel">
+          <summary>Debug data preview</summary>
+          <pre className="debug-json">{JSON.stringify(debugData, null, 2)}</pre>
+        </details>
+      ) : null}
+    </>
   );
 }
 

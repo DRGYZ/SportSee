@@ -1,10 +1,10 @@
 const FRENCH_LABEL_BY_KIND = {
   cardio: "Cardio",
-  energy: "Energie",
+  energy: "Énergie",
   endurance: "Endurance",
   strength: "Force",
   speed: "Vitesse",
-  intensity: "Intensite",
+  intensity: "Intensité",
 };
 
 /**

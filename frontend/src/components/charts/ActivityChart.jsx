@@ -34,6 +34,33 @@ function toChartData(sessions) {
   }));
 }
 
+function getKilogramScale(chartData) {
+  const kilograms = chartData
+    .map((session) => Number(session?.kilogram ?? 0))
+    .filter((value) => Number.isFinite(value));
+
+  if (kilograms.length === 0) {
+    return {
+      domain: [0, 3],
+      ticks: [0, 1, 2, 3],
+    };
+  }
+
+  const minValue = Math.min(...kilograms);
+  const maxValue = Math.max(...kilograms);
+  const start = Math.floor(minValue) - 1;
+  const end = Math.ceil(maxValue) + 1;
+  const step = Math.max(1, Math.round((end - start) / 3));
+  const ticks = [start, start + step, start + step * 2, end].filter(
+    (value, index, values) => values.indexOf(value) === index
+  );
+
+  return {
+    domain: [ticks[0], ticks[ticks.length - 1]],
+    ticks,
+  };
+}
+
 function ActivityTooltip({ active, payload }) {
   if (!active || !payload || payload.length === 0) {
     return null;
@@ -68,6 +95,7 @@ function ActivityChart({ sessions }) {
   }
 
   const chartData = toChartData(safeSessions);
+  const kilogramScale = getKilogramScale(chartData);
 
   return (
     <div className="activity-chart">
@@ -76,20 +104,30 @@ function ActivityChart({ sessions }) {
       </div>
       <div className="activity-chart-content">
         <ResponsiveContainer width="100%" height={260}>
-          <BarChart data={chartData} barGap={8} margin={{ top: 8, right: 12, left: 12, bottom: 8 }}>
-            <CartesianGrid strokeDasharray="3 3" vertical={false} />
-            <XAxis dataKey="dayLabel" tickLine={false} axisLine={false} />
-            <YAxis yAxisId="kg" orientation="right" axisLine={false} tickLine={false} />
+          <BarChart data={chartData} barGap={8} barCategoryGap={34} margin={{ top: 8, right: 8, left: 4, bottom: 4 }}>
+            <CartesianGrid stroke="#dedede" strokeDasharray="3 3" vertical={false} />
+            <XAxis dataKey="dayLabel" tickLine={false} axisLine={false} tick={{ fill: "#9b9eac", fontSize: 14 }} />
+            <YAxis
+              yAxisId="kg"
+              orientation="right"
+              axisLine={false}
+              tickLine={false}
+              tick={{ fill: "#9b9eac", fontSize: 14 }}
+              allowDecimals={false}
+              ticks={kilogramScale.ticks}
+              domain={kilogramScale.domain}
+            />
             <YAxis yAxisId="kcal" hide />
             <Tooltip content={<ActivityTooltip />} cursor={{ fill: "#c4c4c450" }} />
             <Legend
               verticalAlign="top"
               align="right"
               iconType="circle"
+              wrapperStyle={{ top: -4, right: 8, fontSize: 14 }}
               formatter={(value) => (value === "kilogram" ? "Poids (kg)" : "Calories brûlées (kCal)")}
             />
-            <Bar yAxisId="kg" dataKey="kilogram" name="kilogram" fill="#282d30" radius={[10, 10, 0, 0]} />
-            <Bar yAxisId="kcal" dataKey="calories" name="calories" fill="#e60000" radius={[10, 10, 0, 0]} />
+            <Bar yAxisId="kg" dataKey="kilogram" name="kilogram" fill="#282d30" radius={[50, 50, 0, 0]} barSize={7} />
+            <Bar yAxisId="kcal" dataKey="calories" name="calories" fill="#e60000" radius={[50, 50, 0, 0]} barSize={7} />
           </BarChart>
         </ResponsiveContainer>
       </div>

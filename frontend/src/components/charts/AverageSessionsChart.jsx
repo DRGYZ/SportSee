@@ -56,17 +56,24 @@ function AverageSessionsChart({ sessions }) {
       <h3 className="average-sessions-title">Duree moyenne des sessions</h3>
       <div className="average-sessions-content">
         <ResponsiveContainer width="100%" height={200}>
-          <LineChart data={toChartData(safeSessions)} margin={{ top: 16, right: 8, left: 8, bottom: 8 }}>
-            <XAxis dataKey="dayLabel" axisLine={false} tickLine={false} />
+          <LineChart data={toChartData(safeSessions)} margin={{ top: 16, right: 6, left: 6, bottom: 8 }}>
+            <XAxis
+              dataKey="dayLabel"
+              axisLine={false}
+              tickLine={false}
+              tick={{ fill: "rgba(255,255,255,0.7)", fontSize: 12 }}
+              padding={{ left: 6, right: 6 }}
+            />
             <YAxis hide domain={["dataMin - 10", "dataMax + 10"]} />
             <Tooltip content={<AverageSessionsTooltip />} animationDuration={0} />
             <Line
               type="monotone"
               dataKey="sessionLength"
-              stroke="currentColor"
-              strokeWidth={3}
+              stroke="#ffffff"
+              strokeOpacity={0.9}
+              strokeWidth={2.5}
               dot={false}
-              activeDot={{ r: 4 }}
+              activeDot={{ r: 4, fill: "#ffffff", stroke: "rgba(255,255,255,0.35)", strokeWidth: 8 }}
             />
           </LineChart>
         </ResponsiveContainer>

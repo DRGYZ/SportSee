@@ -56,11 +56,3 @@ export async function getUserPerformance(userId) {
     getMockPayloadOrThrow(mockPerformanceData, userId, "/user/:id/performance")
   );
 }
-
-/**
- * @param {string|number} userId
- */
-export async function getUserScore(userId) {
-  const user = await getUserMainData(userId);
-  return user.score;
-}

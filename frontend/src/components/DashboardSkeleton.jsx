@@ -6,6 +6,10 @@ import PerformanceRadar from "./charts/PerformanceRadar";
 import ScoreRadial from "./charts/ScoreRadial";
 import KeyDataCard from "./ui/KeyDataCard";
 
+/**
+ * Presentational dashboard shell for the normalized user data.
+ * All chart inputs are expected to already be adapted for UI consumption.
+ */
 function DashboardSkeleton({
   userId,
   firstName,
@@ -23,23 +27,23 @@ function DashboardSkeleton({
           <span className="dashboard-first-name">{firstName}</span>
         </h1>
         <p className="dashboard-subtitle">
-          Felicitation ! Vous avez explose vos objectifs hier 👏
+          Félicitation ! Vous avez explosé vos objectifs hier 👏
         </p>
       </header>
 
       <div className="dashboard-grid">
         <div className="charts-column">
-          <article className="panel panel-activity" aria-label="activity chart">
+          <article id="activity" className="panel panel-activity anchor-section" aria-label="activity chart">
             <ActivityChart sessions={activitySessions} />
           </article>
           <div className="small-panels-row">
-            <article className="panel panel-small panel-sessions">
+            <article id="sessions" className="panel panel-small panel-sessions anchor-section">
               <AverageSessionsChart sessions={averageSessions} />
             </article>
-            <article className="panel panel-small panel-performance">
+            <article id="performance" className="panel panel-small panel-performance anchor-section">
               <PerformanceRadar categories={performanceCategories} />
             </article>
-            <article className="panel panel-small panel-score">
+            <article id="score" className="panel panel-small panel-score anchor-section">
               <ScoreRadial score={score} />
             </article>
           </div>

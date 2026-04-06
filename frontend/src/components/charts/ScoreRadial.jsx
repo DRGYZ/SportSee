@@ -22,14 +22,23 @@ function ScoreRadial({ score }) {
         <ResponsiveContainer width="100%" height={200}>
           <RadialBarChart
             data={chartData}
-            innerRadius="72%"
-            outerRadius="88%"
+            cx="50%"
+            cy="50%"
+            innerRadius="74%"
+            outerRadius="90%"
             startAngle={90}
             endAngle={90 + 360}
             barSize={10}
           >
             <PolarAngleAxis type="number" domain={[0, 100]} angleAxisId={0} tick={false} />
-            <RadialBar dataKey="value" fill="#ff0101" background clockWise animationDuration={0} />
+            <RadialBar
+              dataKey="value"
+              fill="#ff0101"
+              background={{ fill: "#fbfbfb" }}
+              cornerRadius={10}
+              clockWise
+              animationDuration={0}
+            />
           </RadialBarChart>
         </ResponsiveContainer>
         <div className="score-radial-center">
