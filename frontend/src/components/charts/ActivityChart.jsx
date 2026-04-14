@@ -48,10 +48,10 @@ function getKilogramScale(chartData) {
 
   const minValue = Math.min(...kilograms);
   const maxValue = Math.max(...kilograms);
-  const start = Math.floor(minValue) - 1;
-  const end = Math.ceil(maxValue) + 1;
-  const step = Math.max(1, Math.round((end - start) / 3));
-  const ticks = [start, start + step, start + step * 2, end].filter(
+  const startTick = Math.floor(minValue) - 1;
+  const endTick = Math.ceil(maxValue) + 1;
+  const middleTick = Math.round((startTick + endTick) / 2);
+  const ticks = [startTick, middleTick, endTick].filter(
     (value, index, values) => values.indexOf(value) === index
   );
 
