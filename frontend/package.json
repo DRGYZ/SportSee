@@ -5,6 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite --host 127.0.0.1 --port 5173 --strictPort",
+    "test": "node --test",
+    "verify": "npm test && npm run build",
     "build": "vite build",
     "preview": "vite preview"
   },
@@ -12,7 +14,6 @@
     "vite": "^7.3.1"
   },
   "dependencies": {
-    "axios": "^1.13.5",
     "prop-types": "^15.8.1",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",

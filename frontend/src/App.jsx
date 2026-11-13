@@ -1,9 +1,10 @@
-import React from "react";
+import React, { lazy, Suspense } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 import AppLayout from "./components/AppLayout";
 import HomePage from "./pages/HomePage";
-import ProfilePage from "./pages/ProfilePage";
 import StaticPage from "./pages/StaticPage";
+
+const ProfilePage = lazy(() => import("./pages/ProfilePage"));
 
 function App() {
   return (
@@ -11,7 +12,11 @@ function App() {
       <Route element={<AppLayout />}>
         <Route path="/" element={<Navigate to="/user/12" replace />} />
         <Route path="/home" element={<HomePage />} />
-        <Route path="/user/:id" element={<ProfilePage />} />
+        <Route path="/user/:id" element={
+          <Suspense fallback={<p role="status">Chargement…</p>}>
+            <ProfilePage />
+          </Suspense>
+        } />
         <Route
           path="/settings"
           element={

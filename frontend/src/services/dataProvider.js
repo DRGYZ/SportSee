@@ -1,68 +1,24 @@
-import {
-  getUserActivity as getUserActivityMock,
-  getUserAverageSessions as getUserAverageSessionsMock,
-  getUserMainData as getUserMainDataMock,
-  getUserPerformance as getUserPerformanceMock,
-} from "./mock/mockService";
+import * as apiService from "./api/sportseeApi.js";
+import { mockService } from "./mock/mockService.js";
+import { adaptUserMainData } from "../models/userAdapter.js";
+import { adaptUserActivity } from "../models/activityAdapter.js";
+import { adaptUserAverageSessions } from "../models/averageSessionsAdapter.js";
+import { adaptUserPerformance } from "../models/performanceAdapter.js";
 
-import {
-  getUserActivity as getUserActivityApi,
-  getUserAverageSessions as getUserAverageSessionsApi,
-  getUserMainData as getUserMainDataApi,
-  getUserPerformance as getUserPerformanceApi,
-} from "./api/sportseeApi";
-import { adaptUserMainData } from "../models/userAdapter";
-import { adaptUserActivity } from "../models/activityAdapter";
-import { adaptUserAverageSessions } from "../models/averageSessionsAdapter";
-import { adaptUserPerformance } from "../models/performanceAdapter";
+const source = import.meta.env.VITE_DATA_SOURCE === "api" ? apiService : mockService;
 
-const DATA_SOURCE = import.meta.env.VITE_DATA_SOURCE ?? "mock";
-const useApi = DATA_SOURCE === "api";
+export async function loadDashboard(userId, signal) {
+  const [user, activity, averageSessions, performance] = await Promise.all([
+    source.getUserMainData(userId, signal),
+    source.getUserActivity(userId, signal),
+    source.getUserAverageSessions(userId, signal),
+    source.getUserPerformance(userId, signal),
+  ]);
 
-/**
- * Get normalized main user data.
- * @param {string|number} userId
- */
-export function getUserMainData(userId) {
-  if (!useApi) {
-    return getUserMainDataMock(userId);
-  }
-
-  return getUserMainDataApi(userId).then((payload) => adaptUserMainData(payload?.data));
-}
-
-/**
- * Get normalized user activity data.
- * @param {string|number} userId
- */
-export function getUserActivity(userId) {
-  if (!useApi) {
-    return getUserActivityMock(userId);
-  }
-
-  return getUserActivityApi(userId).then((payload) => adaptUserActivity(payload?.data));
-}
-
-/**
- * Get normalized average sessions data.
- * @param {string|number} userId
- */
-export function getUserAverageSessions(userId) {
-  if (!useApi) {
-    return getUserAverageSessionsMock(userId);
-  }
-
-  return getUserAverageSessionsApi(userId).then((payload) => adaptUserAverageSessions(payload?.data));
-}
-
-/**
- * Get normalized performance data with French categories.
- * @param {string|number} userId
- */
-export function getUserPerformance(userId) {
-  if (!useApi) {
-    return getUserPerformanceMock(userId);
-  }
-
-  return getUserPerformanceApi(userId).then((payload) => adaptUserPerformance(payload?.data));
+  return {
+    user: adaptUserMainData(user.data),
+    activity: adaptUserActivity(activity.data),
+    averageSessions: adaptUserAverageSessions(averageSessions.data),
+    performance: adaptUserPerformance(performance.data),
+  };
 }

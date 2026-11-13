@@ -1,58 +1,19 @@
-import {
-  mockActivityData,
-  mockAverageSessionsData,
-  mockMainData,
-  mockPerformanceData,
-} from "./mockData";
+import fixtures from "./demoData.json";
 
-import { adaptUserMainData } from "../../models/userAdapter";
-import { adaptUserActivity } from "../../models/activityAdapter";
-import { adaptUserAverageSessions } from "../../models/averageSessionsAdapter";
-import { adaptUserPerformance } from "../../models/performanceAdapter";
+export const mockService = {
+  getUserMainData: (userId) => getMockData(fixtures.users, userId, "id"),
+  getUserActivity: (userId) => getMockData(fixtures.activity, userId),
+  getUserAverageSessions: (userId) => getMockData(fixtures.averageSessions, userId),
+  getUserPerformance: (userId) => getMockData(fixtures.performance, userId),
+};
 
-function parseUserId(userId) {
-  return Number(userId);
-}
-
-function getMockPayloadOrThrow(dataset, userId, endpoint) {
-  const parsedUserId = parseUserId(userId);
-  const payload = dataset[parsedUserId];
-
-  if (!payload) {
-    throw new Error(`No mock data for user ${parsedUserId} on endpoint ${endpoint}`);
+async function getMockData(records, userId, idKey = "userId") {
+  const data = records.find((item) => item[idKey] === Number(userId));
+  if (!data) {
+    const error = new Error("Profil introuvable.");
+    error.status = 404;
+    throw error;
   }
 
-  return payload.data ?? {};
-}
-
-/**
- * @param {string|number} userId
- */
-export async function getUserMainData(userId) {
-  return adaptUserMainData(getMockPayloadOrThrow(mockMainData, userId, "/user/:id"));
-}
-
-/**
- * @param {string|number} userId
- */
-export async function getUserActivity(userId) {
-  return adaptUserActivity(getMockPayloadOrThrow(mockActivityData, userId, "/user/:id/activity"));
-}
-
-/**
- * @param {string|number} userId
- */
-export async function getUserAverageSessions(userId) {
-  return adaptUserAverageSessions(
-    getMockPayloadOrThrow(mockAverageSessionsData, userId, "/user/:id/average-sessions")
-  );
-}
-
-/**
- * @param {string|number} userId
- */
-export async function getUserPerformance(userId) {
-  return adaptUserPerformance(
-    getMockPayloadOrThrow(mockPerformanceData, userId, "/user/:id/performance")
-  );
+  return { data };
 }

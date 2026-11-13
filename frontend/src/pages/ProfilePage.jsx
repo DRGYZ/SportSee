@@ -1,96 +1,71 @@
-import React from "react";
-import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { Link, useParams } from "react-router-dom";
 import DashboardSkeleton from "../components/DashboardSkeleton";
-import {
-  getUserActivity,
-  getUserAverageSessions,
-  getUserMainData,
-  getUserPerformance,
-} from "../services/dataProvider";
+import { loadDashboard } from "../services/dataProvider";
 
 const isDebugEnabled = import.meta.env.VITE_DEBUG === "true";
 
-/**
- * Load and render the SportSee dashboard for the current user route.
- * Data is fetched through the provider layer so the page stays decoupled
- * from API and mock implementation details.
- */
-function ProfilePage() {
-  const { id } = useParams();
-  const [debugData, setDebugData] = useState({
-    user: null,
-    activity: null,
-    averageSessions: null,
-    performance: null,
-  });
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState("");
+function ProfileDashboard({ id }) {
+  const [data, setData] = useState(null);
+  const [error, setError] = useState(null);
+  const [attempt, setAttempt] = useState(0);
 
   useEffect(() => {
-    let isCancelled = false;
+    const controller = new AbortController();
+    loadDashboard(id, controller.signal).then(
+      (dashboard) => {
+        if (!controller.signal.aborted) setData(dashboard);
+      },
+      (failure) => {
+        if (!controller.signal.aborted) setError(failure);
+      },
+    );
+    return () => controller.abort();
+  }, [id, attempt]);
 
-    async function loadUserData() {
-      setIsLoading(true);
-      setError("");
+  if (error) {
+    const isMissing = error.status === 404;
+    return (
+      <section className="page-card">
+        <h1 className="page-title">{isMissing ? "Profil introuvable" : "Tableau de bord indisponible"}</h1>
+        <p className="page-subtitle" role="alert">
+          {isMissing ? "Choisissez un profil depuis l’accueil." : "Les données n’ont pas pu être chargées."}
+        </p>
+        {isMissing ? <Link className="page-link" to="/home">Voir les profils</Link> : (
+          <button className="page-link" type="button" onClick={() => {
+            setError(null);
+            setAttempt((count) => count + 1);
+          }}>Réessayer</button>
+        )}
+        {isDebugEnabled ? <p className="debug-error">{error.message}</p> : null}
+      </section>
+    );
+  }
 
-      try {
-        const [user, activity, averageSessions, performance] = await Promise.all([
-          getUserMainData(id),
-          getUserActivity(id),
-          getUserAverageSessions(id),
-          getUserPerformance(id),
-        ]);
-
-        if (!isCancelled) {
-          setDebugData({
-            user,
-            activity,
-            averageSessions,
-            performance,
-          });
-        }
-      } catch (loadError) {
-        if (!isCancelled) {
-          setError(loadError instanceof Error ? loadError.message : "Unknown data error");
-        }
-      } finally {
-        if (!isCancelled) {
-          setIsLoading(false);
-        }
-      }
-    }
-
-    loadUserData();
-
-    return () => {
-      isCancelled = true;
-    };
-  }, [id]);
+  if (!data) return <p role="status">Chargement…</p>;
 
   return (
     <>
-      {isLoading ? <p>Chargement...</p> : null}
-      {!isLoading && error ? <p className="debug-error">{error}</p> : null}
-      {!isLoading && !error ? (
-        <DashboardSkeleton
-          userId={id}
-          firstName={debugData.user?.firstName ?? "Utilisateur"}
-          activitySessions={debugData.activity?.sessions ?? []}
-          averageSessions={debugData.averageSessions?.sessions ?? []}
-          performanceCategories={debugData.performance?.categories ?? []}
-          score={debugData.user?.score ?? 0}
-          keyData={debugData.user?.keyData ?? {}}
-        />
-      ) : null}
+      <DashboardSkeleton
+        userId={id}
+        firstName={data.user.firstName}
+        activitySessions={data.activity.sessions}
+        averageSessions={data.averageSessions.sessions}
+        performanceCategories={data.performance.categories}
+        score={data.user.score}
+        keyData={data.user.keyData}
+      />
       {isDebugEnabled ? (
         <details className="debug-panel">
-          <summary>Debug data preview</summary>
-          <pre className="debug-json">{JSON.stringify(debugData, null, 2)}</pre>
+          <summary>Données du profil</summary>
+          <pre className="debug-json">{JSON.stringify(data, null, 2)}</pre>
         </details>
       ) : null}
     </>
   );
 }
 
-export default ProfilePage;
+export default function ProfilePage() {
+  const { id } = useParams();
+  return <ProfileDashboard key={id} id={id} />;
+}

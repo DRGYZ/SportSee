@@ -1,33 +1,21 @@
-import { get } from "./http";
+import { get } from "./http.js";
 
-/**
- * @param {string|number} userId
- * @returns {Promise<any>}
- */
-export function getUserMainData(userId) {
-  return get(`/user/${userId}`);
+function userPath(userId) {
+  return `/user/${encodeURIComponent(userId)}`;
 }
 
-/**
- * @param {string|number} userId
- * @returns {Promise<any>}
- */
-export function getUserActivity(userId) {
-  return get(`/user/${userId}/activity`);
+export function getUserMainData(userId, signal) {
+  return get(userPath(userId), signal);
 }
 
-/**
- * @param {string|number} userId
- * @returns {Promise<any>}
- */
-export function getUserAverageSessions(userId) {
-  return get(`/user/${userId}/average-sessions`);
+export function getUserActivity(userId, signal) {
+  return get(`${userPath(userId)}/activity`, signal);
 }
 
-/**
- * @param {string|number} userId
- * @returns {Promise<any>}
- */
-export function getUserPerformance(userId) {
-  return get(`/user/${userId}/performance`);
+export function getUserAverageSessions(userId, signal) {
+  return get(`${userPath(userId)}/average-sessions`, signal);
+}
+
+export function getUserPerformance(userId, signal) {
+  return get(`${userPath(userId)}/performance`, signal);
 }

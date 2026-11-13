@@ -1,15 +1,11 @@
 import React from "react";
-import { Link, NavLink, useParams } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 import { assetPath } from "../utils/assetPath";
 
-const DEFAULT_USER_ID = "12";
-
-function Header() {
-  const { id } = useParams();
-  const currentUserId = id ?? DEFAULT_USER_ID;
+function Header({ userId = "12" }) {
   const navigationItems = [
     { label: "Accueil", to: "/home" },
-    { label: "Profil", to: `/user/${currentUserId}` },
+    { label: "Profil", to: `/user/${encodeURIComponent(userId)}` },
     { label: "Réglage", to: "/settings" },
     { label: "Communauté", to: "/community" },
   ];
