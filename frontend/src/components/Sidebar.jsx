@@ -1,8 +1,6 @@
 import React from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { assetPath } from "../utils/assetPath";
-
-const DEFAULT_USER_ID = "12";
 
 function ActivityShortcutIcon() {
   return (
@@ -28,9 +26,8 @@ function ScoreShortcutIcon() {
   );
 }
 
-function Sidebar() {
-  const { id } = useParams();
-  const currentUserId = id ?? DEFAULT_USER_ID;
+function Sidebar({ userId = "12" }) {
+  const currentUserId = encodeURIComponent(userId);
   const shortcuts = [
     {
       to: `/user/${currentUserId}#activity`,

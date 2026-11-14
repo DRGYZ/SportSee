@@ -1,29 +1,22 @@
-import axios from "axios";
+const baseUrl = (import.meta.env.VITE_API_BASE_URL ?? "http://localhost:3000").replace(/\/+$/, "");
 
-const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:3000";
+export async function get(path, signal) {
+  const timeout = AbortSignal.timeout(8000);
+  const response = await fetch(baseUrl + path, {
+    headers: { Accept: "application/json" },
+    signal: signal ? AbortSignal.any([signal, timeout]) : timeout,
+  });
 
-const httpClient = axios.create({
-  baseURL: BASE_URL,
-});
-
-/**
- * Perform a GET request and return response payload.
- * @param {string} path
- * @returns {Promise<any>}
- */
-export async function get(path) {
-  try {
-    const response = await httpClient.get(path);
-    return response.data;
-  } catch (error) {
-    const status = error?.response?.status;
-    const statusText = error?.response?.statusText;
-    const serverMessage =
-      typeof error?.response?.data === "string"
-        ? error.response.data
-        : error?.response?.data?.message;
-    const details = serverMessage ?? statusText ?? error?.message ?? "Unknown request error";
-    const prefix = status ? `HTTP ${status}` : "HTTP request failed";
-    throw new Error(`${prefix}: ${details}`);
+  if (!response.ok) {
+    const error = new Error(`HTTP ${response.status}`);
+    error.status = response.status;
+    throw error;
   }
+
+  const payload = await response.json();
+  if (!payload?.data || typeof payload.data !== "object") {
+    throw new Error("Réponse SportSee invalide.");
+  }
+
+  return payload;
 }

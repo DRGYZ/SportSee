@@ -1,4 +1,4 @@
-import React from "react";
+import React, { memo } from "react";
 import PropTypes from "prop-types";
 import {
   PolarAngleAxis,
@@ -7,56 +7,66 @@ import {
   RadarChart,
   ResponsiveContainer,
 } from "recharts";
+import { sortPerformanceCategories } from "../../models/dashboardInsights";
 
-const DISPLAY_ORDER = ["Intensité", "Vitesse", "Force", "Endurance", "Énergie", "Cardio"];
-
-function normalizeLabel(label) {
-  return String(label ?? "")
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase();
-}
-
-function normalizeCategories(categories) {
-  const safeCategories = Array.isArray(categories) ? categories : [];
-  const displayOrderMap = DISPLAY_ORDER.reduce((acc, label, index) => {
-    acc[normalizeLabel(label)] = index;
-    return acc;
-  }, {});
-
-  return safeCategories
-    .map((item) => ({
-      labelFr: String(item?.labelFr ?? ""),
-      value: Number(item?.value ?? 0),
-    }))
-    .sort((leftItem, rightItem) => {
-      const leftOrder = displayOrderMap[normalizeLabel(leftItem.labelFr)] ?? Number.MAX_SAFE_INTEGER;
-      const rightOrder = displayOrderMap[normalizeLabel(rightItem.labelFr)] ?? Number.MAX_SAFE_INTEGER;
-
-      return leftOrder - rightOrder;
-    });
-}
-
-function PerformanceRadar({ categories }) {
-  const chartData = normalizeCategories(categories);
+function PerformanceRadar({ categories = [], topLabel = "", lowLabel = "" }) {
+  const chartData = sortPerformanceCategories(categories);
 
   if (chartData.length === 0) {
     return <p className="performance-radar-empty">Aucune donnee de performance disponible.</p>;
   }
 
+  let resolvedTop = topLabel;
+  let resolvedLow = lowLabel;
+  if (!resolvedTop || !resolvedLow) {
+    const topCat = chartData.reduce((best, c) => (!best || c.value > best.value ? c : best), null);
+    const lowCat = chartData.reduce((worst, c) => (!worst || c.value < worst.value ? c : worst), null);
+    resolvedTop = resolvedTop || (topCat ? `Pic : ${topCat.labelFr} ${Math.round(topCat.value)}` : "—");
+    resolvedLow = resolvedLow || (lowCat ? `Creux : ${lowCat.labelFr} ${Math.round(lowCat.value)}` : "—");
+  }
+
   return (
-    <div className="performance-radar-chart">
-      <ResponsiveContainer width="100%" height={215}>
-        <RadarChart data={chartData} cx="50%" cy="52%" outerRadius="68%" startAngle={90} endAngle={-270}>
-          <PolarGrid radialLines={false} stroke="#ffffff" strokeOpacity={0.28} />
-          <PolarAngleAxis
-            dataKey="labelFr"
-            tickLine={false}
-            tick={{ fontSize: 12, fill: "#ffffff", fontWeight: 500 }}
-          />
-          <Radar dataKey="value" fill="#ff0101" fillOpacity={0.7} stroke="#ff0101" />
-        </RadarChart>
-      </ResponsiveContainer>
+    <div className="performance-radar-panel">
+      <div>
+        <p className="panel-kicker perf-kicker">03 · Équilibre 6 qualités</p>
+        <h2 className="panel-title perf-title">Profil de performance</h2>
+        <p className="chart-adds perf-adds">
+          <strong>Ce qu’il apporte :</strong> cartographie forces dominantes et axes à renforcer.
+        </p>
+      </div>
+
+      <div className="performance-radar-chart">
+        <ResponsiveContainer width="100%" height={192}>
+          <RadarChart
+            data={chartData}
+            cx="50%"
+            cy="52%"
+            outerRadius="63%"
+            startAngle={90}
+            endAngle={-270}
+          >
+            <PolarGrid radialLines={false} stroke="rgba(255,255,255,0.18)" />
+            <PolarAngleAxis
+              dataKey="labelFr"
+              tickLine={false}
+              tick={{ fontSize: 11, fill: "#E2E8F0", fontWeight: 600 }}
+            />
+            <Radar
+              dataKey="value"
+              fill="#E11D24"
+              fillOpacity={0.62}
+              stroke="#FF3B30"
+              strokeWidth={2}
+              isAnimationActive={false}
+            />
+          </RadarChart>
+        </ResponsiveContainer>
+      </div>
+
+      <div className="radar-foot tabular">
+        <span>{resolvedTop}</span>
+        <span>{resolvedLow}</span>
+      </div>
     </div>
   );
 }
@@ -66,12 +76,10 @@ PerformanceRadar.propTypes = {
     PropTypes.shape({
       labelFr: PropTypes.string,
       value: PropTypes.number,
-    })
+    }),
   ),
+  topLabel: PropTypes.string,
+  lowLabel: PropTypes.string,
 };
 
-PerformanceRadar.defaultProps = {
-  categories: [],
-};
-
-export default PerformanceRadar;
+export default memo(PerformanceRadar);

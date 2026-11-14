@@ -1,8 +1,10 @@
-FROM node:lts-alpine
+FROM node:24-alpine
 
-ADD . /app/
 WORKDIR /app
-
-RUN yarn
+COPY package.json package-lock.json ./
+RUN npm ci --omit=dev
+COPY app ./app
+COPY frontend/src/services/mock/demoData.json ./frontend/src/services/mock/demoData.json
 
 EXPOSE 3000
+CMD ["npm", "start"]

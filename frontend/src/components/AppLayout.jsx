@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { Outlet, useLocation } from "react-router-dom";
+import { Outlet, useLocation, useMatch } from "react-router-dom";
 import Header from "./Header";
 import Sidebar from "./Sidebar";
 
@@ -43,11 +43,12 @@ function HashScrollManager() {
 }
 
 function AppLayout() {
+  const currentUserId = useMatch("/user/:id")?.params.id;
   return (
     <div className="app-shell">
-      <Header />
+      <Header userId={currentUserId} />
       <div className="body-shell">
-        <Sidebar />
+        <Sidebar userId={currentUserId} />
         <main className="main-content">
           <HashScrollManager />
           <Outlet />

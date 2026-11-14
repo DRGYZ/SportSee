@@ -1,73 +1,45 @@
 # SportSee
 
-SportSee est un projet de tableau de bord utilisateur avec :
-- une micro API backend (Express) sur le port `3000`
-- une interface frontend (React + Recharts) sur le port `5173`
+Tableau de bord sportif réalisé pour OpenClassrooms. Le frontend React et Recharts présente l’activité quotidienne, la durée des sessions, les performances, le score et les apports nutritionnels. Le dépôt est un fork du [projet de départ OpenClassrooms](https://github.com/OpenClassrooms-Student-Center/SportSee), qui fournit l’API Express et les données de démonstration.
 
-L'interface cible uniquement le desktop pour ce sprint (`>= 1024x780`).
+[Démo Karl](https://drgyz.github.io/SportSee/user/12) · [Démo Cecilia](https://drgyz.github.io/SportSee/user/18)
 
-## Prérequis
+L’interface cible les écrans de bureau à partir de 1024 × 780. Les pages Réglage et Communauté sont des maquettes.
 
-- Node.js (version LTS recommandée)
-- npm ou yarn
+## Démarrer la démo
 
-## Installation du backend (racine du repo)
+Avec Node.js 24 et npm :
 
-Depuis `SportSee/` :
-
-```bash
-npm install
+```sh
+cd frontend
+npm ci
 npm run dev
 ```
 
-Le backend démarre sur : `http://localhost:3000`
+Ouvrez `http://127.0.0.1:5173/`. Les profils Karl et Cecilia sont disponibles dans Accueil. Le frontend utilise les données locales par défaut, comme sur GitHub Pages.
 
-## Installation du frontend (`frontend/`)
+## Utiliser l’API Express
 
-Depuis `SportSee/frontend` :
+Dans un premier terminal, à la racine du dépôt :
 
-```bash
-npm install
-npm run dev
+```sh
+npm ci
+npm start
 ```
 
-Le frontend démarre sur : `http://127.0.0.1:5173`
+Dans `frontend/`, copiez `.env.example` vers `.env`, puis démarrez ou redémarrez Vite. Cet exemple active `VITE_DATA_SOURCE=api` et utilise `http://localhost:3000`. Supprimez `.env` ou passez à `VITE_DATA_SOURCE=mock` pour revenir à la démo locale. `VITE_DEBUG=true` affiche les données normalisées et les détails des erreurs.
 
-## Déploiement GitHub Pages
+Les deux modes partagent les mêmes données de départ. Le fournisseur de données appelle en parallèle les quatre sources du profil, puis les adaptateurs convertissent les champs utilisés par les graphiques, dont `todayScore` et `score`.
 
-La version déployée est disponible ici :
+## Vérifier
 
-- `https://drgyz.github.io/SportSee/`
-
-GitHub Pages héberge uniquement le frontend statique. Le workflow de déploiement utilise donc les données mockées (`VITE_DATA_SOURCE=mock`).
-En local, la configuration livrée utilise l'API (`VITE_DATA_SOURCE=api`).
-
-## Variables d'environnement du frontend
-
-Avant de démarrer le frontend, copiez `frontend/.env.example` vers `frontend/.env`, puis ajustez les valeurs si besoin.
-Par exemple, avec PowerShell :
-
-```powershell
-Copy-Item .env.example .env
+```sh
+npm --prefix frontend run verify
 ```
 
-- `VITE_DATA_SOURCE=mock|api` (configuration livrée : `api`)
-- `VITE_API_BASE_URL=http://localhost:3000`
-- `VITE_DEBUG=true|false` (valeur par défaut : `false`)
+La commande exécute les tests des adaptateurs et produit le build Vite. Le workflow GitHub Pages exécute cette vérification, compile en mode démo sous `/SportSee/` et ajoute une page de secours pour les liens directs vers un profil.
 
-La configuration livrée utilise `VITE_DATA_SOURCE=api`, donc le backend doit être lancé sur le port `3000`.
-Utilisez `VITE_DATA_SOURCE=mock` uniquement si vous voulez lancer le frontend sans backend.
-
-## Utilisateurs de test
-
-Deux utilisateurs de test sont disponibles :
-- `/user/12`
-- `/user/18`
-
-Routes frontend :
-- `http://127.0.0.1:5173/user/12`
-- `http://127.0.0.1:5173/user/18`
-
-Endpoints backend :
-- `http://localhost:3000/user/12`
-- `http://localhost:3000/user/18`
+- `app/` contient les routes Express du projet de départ.
+- `frontend/src/services/` contient les fournisseurs de données et les fixtures.
+- `frontend/src/models/` contient les adaptateurs pour les graphiques.
+- `frontend/src/components/charts/` contient les visualisations Recharts.
