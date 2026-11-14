@@ -5,7 +5,9 @@ import { adaptUserActivity } from "../models/activityAdapter.js";
 import { adaptUserAverageSessions } from "../models/averageSessionsAdapter.js";
 import { adaptUserPerformance } from "../models/performanceAdapter.js";
 
-const source = import.meta.env.VITE_DATA_SOURCE === "api" ? apiService : mockService;
+export const DATA_SOURCE_MODE = import.meta.env.VITE_DATA_SOURCE === "api" ? "api" : "demo";
+
+const source = DATA_SOURCE_MODE === "api" ? apiService : mockService;
 
 export async function loadDashboard(userId, signal) {
   const [user, activity, averageSessions, performance] = await Promise.all([
