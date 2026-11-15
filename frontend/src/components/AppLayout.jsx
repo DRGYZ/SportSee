@@ -20,7 +20,8 @@ function HashScrollManager() {
       const targetElement = document.getElementById(targetId);
 
       if (targetElement) {
-        targetElement.scrollIntoView({ behavior: "smooth", block: "start" });
+        const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        targetElement.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "start" });
         return;
       }
 

@@ -31,35 +31,36 @@ function Sidebar({ userId = "12" }) {
   const shortcuts = [
     {
       to: `/user/${currentUserId}#activity`,
-      label: "Go to daily activity chart",
+      label: "Activité",
       icon: <ActivityShortcutIcon />,
     },
     {
       to: `/user/${currentUserId}#sessions`,
-      label: "Go to average sessions chart",
+      label: "Sessions",
       icon: <SessionsShortcutIcon />,
     },
     {
       to: `/user/${currentUserId}#performance`,
-      label: "Go to performance chart",
+      label: "Performance",
       icon: <PerformanceShortcutIcon />,
     },
     {
       to: `/user/${currentUserId}#score`,
-      label: "Go to score chart",
+      label: "Objectif",
       icon: <ScoreShortcutIcon />,
     },
   ];
 
   return (
-    <aside className="left-sidebar" aria-label="quick actions">
+    <nav className="left-sidebar" aria-label="Raccourcis des graphiques">
       {shortcuts.map((shortcut) => (
         <Link key={shortcut.label} to={shortcut.to} className="sidebar-icon-link" aria-label={shortcut.label}>
           {shortcut.icon}
+          <span className="sidebar-shortcut-label">{shortcut.label}</span>
         </Link>
       ))}
       <p className="sidebar-copyright">Copyright, SportSee 2020</p>
-    </aside>
+    </nav>
   );
 }
 
