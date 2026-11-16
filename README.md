@@ -4,7 +4,7 @@ Tableau de bord sportif réalisé pour OpenClassrooms. Le frontend React et Rech
 
 [Démo Karl](https://drgyz.github.io/SportSee/user/12) · [Démo Cecilia](https://drgyz.github.io/SportSee/user/18)
 
-L’interface cible les écrans de bureau à partir de 1024 × 780. Les pages Réglage et Communauté sont des maquettes.
+Le tableau de bord s’adapte aux écrans d’ordinateur et de mobile. Sur mobile, la navigation est compacte et les graphiques restent interactifs. Les pages Réglage et Communauté sont des maquettes.
 
 ## Démarrer la démo
 

@@ -66,6 +66,9 @@ test("computes weekly synthesis insights, macro shares, and profile deltas from 
   assert.equal(karlInsights.burnTotal, 1742);
   assert.equal(karlInsights.sessionTotal, 208);
   assert.equal(karlInsights.activeDaysCount, 5);
+  assert.equal(karlInsights.peakBurnCalories, 390);
+  assert.equal(karl.activity.sessions[karlInsights.peakBurnIndex].day, "2020-07-07");
+  assert.equal(karlInsights.peakBurnDayName, "Mar.");
   assert.equal(karlInsights.scorePercent, 12);
   assert.equal(karlInsights.radarTopLabel, "Pic : Vitesse 200");
   assert.deepEqual(computeMacroShares(karl.user.keyData), {
@@ -83,6 +86,8 @@ test("computes weekly synthesis insights, macro shares, and profile deltas from 
   assert.equal(ceciliaInsights.scorePercent, 30);
   assert.equal(ceciliaInsights.peakBurnCalories, 500);
   assert.equal(ceciliaInsights.peakBurnIndex, 3);
+  assert.equal(cecilia.activity.sessions[ceciliaInsights.peakBurnIndex].day, "2020-07-04");
+  assert.equal(ceciliaInsights.peakBurnDayName, "Sam.");
   assert.equal(ceciliaInsights.radarMean, 155);
 
   const delta = computeProfileDelta(karl, cecilia);
@@ -111,4 +116,42 @@ test("computes weekly synthesis insights, macro shares, and profile deltas from 
   assert.equal(emptyInsights.burnTotal, 0);
   assert.equal(emptyInsights.sessionTotal, 0);
   assert.equal(emptyInsights.scorePercent, 0);
+  assert.equal(emptyInsights.peakBurnDayName, "—");
+});
+
+test("uses the peak record's date when activity is unsorted", () => {
+  const activity = adaptUserActivity({ sessions: [
+    { day: "2020-07-07", calories: 390 },
+    { day: "2020-07-04", calories: 240 },
+    { day: "2020-07-06", calories: 310 },
+  ] });
+  const insights = computeDashboardInsights({ activity });
+
+  assert.equal(insights.peakBurnDayName, "Mar.");
+  assert.equal(insights.defaultDayIndex, 0);
+});
+
+test("uses the recorded weekday when activity starts midweek", () => {
+  const activity = adaptUserActivity({ sessions: [
+    { day: "2020-07-01", calories: 200 },
+    { day: "2020-07-02", calories: 350 },
+  ] });
+  const insights = computeDashboardInsights({ activity });
+
+  assert.equal(insights.peakBurnDayName, "Jeu.");
+  assert.equal(insights.defaultDayIndex, 1);
+});
+
+test("keeps the peak value and shows an unknown weekday for missing or invalid dates", () => {
+  for (const day of [undefined, "", "not-a-date", "2020-02-30"]) {
+    const activity = adaptUserActivity({ sessions: [
+      { day: "2020-07-01", calories: 200 },
+      { day, calories: 350 },
+    ] });
+    const insights = computeDashboardInsights({ activity });
+
+    assert.equal(insights.peakBurnDayName, "—", `weekday for ${JSON.stringify(day)}`);
+    assert.equal(insights.peakBurnCalories, 350);
+    assert.equal(insights.defaultDayIndex, 1);
+  }
 });

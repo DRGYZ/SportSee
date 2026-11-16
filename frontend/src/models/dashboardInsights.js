@@ -89,6 +89,23 @@ export function computeMacroShares(keyData = {}) {
   };
 }
 
+function formatActivityWeekday(day) {
+  // Activity records use YYYY-MM-DD calendar dates. Read them in UTC so the
+  // viewer's time zone cannot shift the weekday.
+  if (typeof day !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(day)) {
+    return "—";
+  }
+
+  const date = new Date(`${day}T00:00:00Z`);
+  // Reject impossible dates that Date normalizes into the following month.
+  if (Number.isNaN(date.getTime()) || date.toISOString().slice(0, 10) !== day) {
+    return "—";
+  }
+
+  const mondayFirstIndex = (date.getUTCDay() + 6) % 7;
+  return DAY_FULL_LABELS[mondayFirstIndex];
+}
+
 /**
  * Compute weekly synthesis metrics, chart takeaways, and default scrub target.
  * @param {{ user?: object, activity?: { sessions?: Array }, averageSessions?: { sessions?: Array }, performance?: { categories?: Array } }} dashboard
@@ -132,10 +149,7 @@ export function computeDashboardInsights(dashboard) {
   }
 
   const peakBurnCalories = peakBurnIndex >= 0 ? Math.round(calories[peakBurnIndex]) : 0;
-  const peakBurnDayName =
-    peakBurnIndex >= 0
-      ? (DAY_FULL_LABELS[peakBurnIndex] ?? `J${peakBurnIndex + 1}`)
-      : "—";
+  const peakBurnDayName = formatActivityWeekday(activitySessions[peakBurnIndex]?.day);
   const defaultDayIndex =
     peakBurnIndex >= 0
       ? peakBurnIndex
